@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Fotoğraf Yapbozu</string>
+    <string name="select_language">Dil Seçin</string>
+    <string name="language_english">English</string>
+    <string name="language_turkish">Türkçe</string>
+    <string name="select_image">Resim Seç</string>
+    <string name="play_again">Tekrar Oyna</string>
+    <string name="victory_message">Harika! Yapbozu çözdün!</string>
+    <string name="permission_needed">Görüntü seçmek için depolama izni gerekli.</string>
+</resources>

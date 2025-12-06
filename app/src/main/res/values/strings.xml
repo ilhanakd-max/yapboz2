@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Photo Puzzle</string>
+    <string name="select_language">Select Language</string>
+    <string name="language_english">English</string>
+    <string name="language_turkish">Türkçe</string>
+    <string name="select_image">Select Image</string>
+    <string name="play_again">Play Again</string>
+    <string name="victory_message">Great job! You solved it!</string>
+    <string name="permission_needed">Storage permission is needed to pick images.</string>
+</resources>

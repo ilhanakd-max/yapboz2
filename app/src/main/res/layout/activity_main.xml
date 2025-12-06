@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/selectImageButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/purple_500"
+        android:text="@string/select_image"
+        android:textAllCaps="false"
+        android:textSize="20sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/puzzleContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:background="#EFEFEF"
+        app:layout_constraintTop_toBottomOf="@id/selectImageButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/playAgainButton">
+
+        <GridLayout
+            android:id="@+id/puzzleGrid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alignmentMode="alignBounds"
+            android:columnCount="3"
+            android:rowCount="3"
+            android:useDefaultMargins="true" />
+
+        <com.example.photopuzzle.ConfettiView
+            android:id="@+id/confettiView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/playAgainButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/play_again"
+        android:textAllCaps="false"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/puzzleContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="8dp"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@id/playAgainButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
