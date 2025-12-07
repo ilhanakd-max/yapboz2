@@ -294,16 +294,21 @@ fun MenuScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             DifficultyButton(
                 text = translation.easy,
                 selected = gridSize == 2,
-                onClick = { onGridSizeChange(2) }
+                onClick = { onGridSizeChange(2) },
+                modifier = Modifier.weight(1f)
             )
             DifficultyButton(
                 text = translation.hard,
                 selected = gridSize == 3,
-                onClick = { onGridSizeChange(3) }
+                onClick = { onGridSizeChange(3) },
+                modifier = Modifier.weight(1f)
             )
         }
         LazyVerticalGrid(
@@ -324,12 +329,17 @@ fun MenuScreen(
 }
 
 @Composable
-fun DifficultyButton(text: String, selected: Boolean, onClick: () -> Unit) {
+fun DifficultyButton(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val textColor = if (selected) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onSurface
     Button(
         onClick = onClick,
         modifier = Modifier
-            .weight(1f)
+            .then(modifier)
             .shadow(4.dp, RoundedCornerShape(12.dp)),
         shape = RoundedCornerShape(12.dp),
         colors = androidx.compose.material3.ButtonDefaults.buttonColors(
