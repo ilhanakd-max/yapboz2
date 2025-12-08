@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Minik Zeka Yapbozu</title>
+    <style>
+        :root {
+            --primary: #FF9800;
+            --secondary: #03A9F4;
+            --accent: #8BC34A;
+            --bg-color: #E0F7FA;
+            --font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#B2EBF2 10%, transparent 11%), radial-gradient(#B2EBF2 10%, transparent 11%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: pan-y;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* --- ÜST BAR & BUTONLAR --- */
+        header {
+            width: 100%;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+        }
+
+        h1 {
+            color: #FF5722;
+            margin: 0;
+            font-size: 1.3rem; /* Mobilde taşmasın diye biraz küçülttüm */
+            text-shadow: 2px 2px #FFEB3B;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: #fff;
+            border: 2px solid #333;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: 0 4px #ccc;
+            transition: 0.2s;
+        }
+        .icon-btn:active { transform: translateY(3px); box-shadow: 0 1px #ccc; }
+
+        /* --- MENÜ EKRANLARI --- */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100vh;
+            padding-top: 60px;
+            box-sizing: border-box;
+            animation: fadeIn 0.5s;
+        }
+        .screen.active { display: flex; }
+
+        /* --- AYARLAR MODALI --- */
+        #settings-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+        .settings-card {
+            background: white;
+            padding: 25px;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 350px;
+            border: 5px solid var(--secondary);
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .setting-group { margin-bottom: 20px; }
+        .setting-title { font-size: 1.1rem; color: #555; margin-bottom: 10px; font-weight: bold; }
+        
+        .toggle-container {
+            display: flex;
+            background: #eee;
+            border-radius: 30px;
+            padding: 5px;
+            position: relative;
+        }
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #777;
+            transition: 0.3s;
+            z-index: 2;
+        }
+        .toggle-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* --- KATEGORİ & OYUN --- */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        .cat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            border: 4px solid var(--secondary);
+            box-shadow: 0 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .cat-card:active { transform: scale(0.95); }
+        .cat-emoji { font-size: 3rem; display: block; margin-bottom: 10px; }
+        .cat-title { font-size: 1.2rem; font-weight: bold; color: #555; }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 50px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .diff-btn {
+            border: none;
+            background: transparent;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            color: #888;
+        }
+        .diff-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        #game-board {
+            width: 90vw;
+            height: 90vw;
+            max-width: 400px;
+            max-height: 400px;
+            background: #fff;
+            border: 8px solid var(--primary);
+            border-radius: 15px;
+            display: grid;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .puzzle-piece {
+            width: 100%;
+            height: 100%;
+            background-repeat: no-repeat;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.5);
+            box-sizing: border-box;
+            transition: transform 0.2s, opacity 0.2s, border 0.2s;
+            touch-action: none;
+        }
+
+        /* Sürükleme Modu Stili */
+        .puzzle-piece.dragging {
+            opacity: 0.6;
+            transform: scale(0.9) rotate(5deg);
+            z-index: 100;
+            border: 3px solid #FFEB3B;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Dokunma Modu Stili (Seçili Olan) */
+        .puzzle-piece.selected {
+            border: 5px solid #2196F3;
+            transform: scale(0.95);
+            z-index: 50;
+            box-shadow: inset 0 0 20px rgba(33, 150, 243, 0.5);
+        }
+        
+        .puzzle-piece.correct-flash {
+            animation: flashGreen 0.5s;
+        }
+
+        .back-btn {
+            margin-top: 20px;
+            background: #ff5722;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-family: inherit;
+            font-weight: bold;
+            box-shadow: 0 4px #D84315;
+            cursor: pointer;
+        }
+        .back-btn:active { transform: translateY(4px); box-shadow: 0 0 #D84315; }
+
+        /* --- KAZANMA EKRANI --- */
+        #win-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .win-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            border: 8px solid #FFD700;
+            animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        .win-emoji { font-size: 4rem; animation: bounce 1s infinite; display: block; }
+        .win-text { font-size: 2rem; color: var(--primary); margin: 10px 0; }
+
+        /* Animasyonlar */
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        @keyframes flashGreen { 0% { filter: brightness(1); } 50% { filter: brightness(1.5) sepia(1) hue-rotate(50deg) saturate(3); } 100% { filter: brightness(1); } }
+
+        input[type="file"] { display: none; }
+        .upload-label { background: #9C27B0; color: white; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 id="app-title">🧩 Minik Zeka Yapbozu</h1>
+        <div class="header-buttons">
+            <button class="icon-btn" onclick="toggleLanguage()" id="lang-btn">🇹🇷</button>
+            <button class="icon-btn" onclick="toggleSettings()">⚙️</button>
+        </div>
+    </header>
+
+    <div id="settings-overlay" onclick="if(event.target===this) toggleSettings()">
+        <div class="settings-card">
+            <h2 style="margin-top:0; color:var(--primary);" data-key="settingsTitle">Ayarlar</h2>
+            
+            <div class="setting-group">
+                <div class="setting-title" data-key="controlMode">Kontrol Yöntemi</div>
+                <div class="toggle-container">
+                    <button class="toggle-btn active" onclick="setControlMode('drag')" id="mode-drag" data-key="modeDrag">Sürükle</button>
+                    <button class="toggle-btn" onclick="setControlMode('tap')" id="mode-tap" data-key="modeTap">Dokun</button>
+                </div>
+            </div>
+
+            <button class="back-btn" onclick="toggleSettings()" style="background:#8BC34A; box-shadow:0 4px #558B2F;" data-key="close">Tamam</button>
+        </div>
+    </div>
+
+    <div id="menu-screen" class="screen active">
+        <div class="difficulty-selector">
+            <button class="diff-btn active" onclick="setDifficulty(2)" id="btn-easy">Kolay (2x2)</button>
+            <button class="diff-btn" onclick="setDifficulty(3)" id="btn-hard">Zor (3x3)</button>
+        </div>
+
+        <h2 id="choose-cat-text" style="color: #0097A7;">Kategori Seç</h2>
+        
+        <div class="category-grid">
+            <div class="cat-card" onclick="startGame('animals')">
+                <span class="cat-emoji">🦁</span>
+                <span class="cat-title" data-key="animals">Hayvanlar</span>
+            </div>
+            <div class="cat-card" onclick="startGame('vehicles')">
+                <span class="cat-emoji">🚗</span>
+                <span class="cat-title" data-key="vehicles">Taşıtlar</span>
+            </div>
+            <div class="cat-card" onclick="startGame('fruits')">
+                <span class="cat-emoji">🍎</span>
+                <span class="cat-title" data-key="fruits">Meyveler</span>
+            </div>
+            <label class="cat-card upload-label" style="border-color: #7B1FA2;">
+                <span class="cat-emoji">📷</span>
+                <span class="cat-title" data-key="upload" style="color:white;">Fotoğraf Çek</span>
+                <input type="file" id="imageInput" accept="image/*">
+            </label>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div id="game-board"></div>
+        <button class="back-btn" onclick="goHome()" data-key="back">⬅️ Menüye Dön</button>
+    </div>
+
+    <div id="win-overlay">
+        <div class="win-card">
+            <span class="win-emoji">⭐</span>
+            <h2 class="win-text" data-key="bravo">AFERİN!</h2>
+            <button class="back-btn" style="background:#4CAF50; box-shadow:0 4px #2E7D32;" onclick="nextLevel()" data-key="replay">Tekrar Oyna 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        // --- ÇOKLU DİL VERİSİ ---
+        const translations = {
+            tr: {
+                title: "🧩 Minik Zeka Yapbozu",
+                choose: "Kategori Seç",
+                easy: "Kolay (4 Parça)",
+                hard: "Zor (9 Parça)",
+                animals: "Hayvanlar",
+                vehicles: "Taşıtlar",
+                fruits: "Meyveler",
+                upload: "Fotoğrafın",
+                back: "⬅️ Menüye Dön",
+                bravo: "AFERİN SANA!",
+                replay: "Tekrar Oyna 🔄",
+                settingsTitle: "Ayarlar",
+                controlMode: "Oynama Şekli",
+                modeDrag: "Sürükle 👋",
+                modeTap: "Dokun 👆",
+                close: "Tamam"
+            },
+            en: {
+                title: "🧩 Little Mind Puzzle",
+                choose: "Pick a Category",
+                easy: "Easy (4 Pieces)",
+                hard: "Hard (9 Pieces)",
+                animals: "Animals",
+                vehicles: "Vehicles",
+                fruits: "Fruits",
+                upload: "Your Photo",
+                back: "⬅️ Back to Menu",
+                bravo: "AWESOME JOB!",
+                replay: "Play Again 🔄",
+                settingsTitle: "Settings",
+                controlMode: "Control Mode",
+                modeDrag: "Drag 👋",
+                modeTap: "Tap 👆",
+                close: "Done"
+            }
+        };
+
+        const library = {
+            animals: ['🦁', '🐘', '🐵', '🐶', '🐱', '🐮', '🐼', '🦊', '🐸'],
+            vehicles: ['🚗', '🚕', '🚌', '🚑', '🚒', '🚜', '🚀', '🚁', '🚂'],
+            fruits: ['🍎', '🍌', '🍇', '🍉', '🍓', '🍒', '🍍', '🥝', '🍑']
+        };
+        const colors = ['#FFCDD2', '#F8BBD0', '#E1BEE7', '#D1C4E9', '#C5CAE9', '#BBDEFB', '#B3E5FC', '#B2EBF2', '#B2DFDB', '#DCEDC8', '#F0F4C3', '#FFF9C4', '#FFECB3', '#FFE0B2', '#FFCCBC'];
+
+        // --- DURUM DEĞİŞKENLERİ ---
+        let currentLang = 'tr';
+        let gridSize = 2; 
+        let currentImageSrc = null;
+        let pieces = [];
+        let isGameLocked = false;
+        let controlMode = 'drag'; // 'drag' veya 'tap'
+        let selectedPiece = null; // 'tap' modu için seçili parça
+        let audioCtx = null;
+
+        // --- SES SİSTEMİ ---
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(type) {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            
+            if (type === 'pickup') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.linearRampToValueAtTime(500, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                osc.start();
+                osc.stop(now + 0.1);
+            } else if (type === 'drop') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                osc.start();
+                osc.stop(now + 0.1);
+            } else if (type === 'win') {
+                osc.type = 'square';
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.type = 'sine';
+                    o.connect(g);
+                    g.connect(audioCtx.destination);
+                    o.frequency.value = freq;
+                    g.gain.setValueAtTime(0.1, now + i*0.15);
+                    g.gain.exponentialRampToValueAtTime(0.001, now + i*0.15 + 0.3);
+                    o.start(now + i*0.15);
+                    o.stop(now + i*0.15 + 0.3);
+                });
+            }
+        }
+
+        // --- DİL YÖNETİMİ ---
+        function toggleLanguage() {
+            currentLang = currentLang === 'tr' ? 'en' : 'tr';
+            document.getElementById('lang-btn').innerText = currentLang === 'tr' ? '🇹🇷' : '🇬🇧';
+            updateTexts();
+        }
+
+        function updateTexts() {
+            const t = translations[currentLang];
+            document.getElementById('app-title').innerText = t.title;
+            document.getElementById('choose-cat-text').innerText = t.choose;
+            document.getElementById('btn-easy').innerText = t.easy;
+            document.getElementById('btn-hard').innerText = t.hard;
+            
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if (t[key]) el.innerText = t[key];
+            });
+        }
+
+        // --- AYARLAR YÖNETİMİ ---
+        function toggleSettings() {
+            const overlay = document.getElementById('settings-overlay');
+            if (overlay.style.display === 'flex') overlay.style.display = 'none';
+            else overlay.style.display = 'flex';
+        }
+
+        function setControlMode(mode) {
+            controlMode = mode;
+            document.getElementById('mode-drag').classList.remove('active');
+            document.getElementById('mode-tap').classList.remove('active');
+            
+            if (mode === 'drag') document.getElementById('mode-drag').classList.add('active');
+            else document.getElementById('mode-tap').classList.add('active');
+
+            // Eğer oyun açıksa parçaların draggable özelliğini güncelle
+            updatePiecesDraggable();
+            // Eğer oyun açıksa ve seçili parça varsa seçimi kaldır
+            if(selectedPiece) {
+                selectedPiece.classList.remove('selected');
+                selectedPiece = null;
+            }
+        }
+
+        // --- OYUN AYARLARI ---
+        function setDifficulty(size) {
+            gridSize = size;
+            document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+            if (size === 2) document.getElementById('btn-easy').classList.add('active');
+            else document.getElementById('btn-hard').classList.add('active');
+        }
+
+        function generateImageFromEmoji(category) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 600;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            const bgColor = colors[Math.floor(Math.random() * colors.length)];
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, 600, 600);
+
+            ctx.strokeStyle = "#FFFFFF";
+            ctx.lineWidth = 20;
+            ctx.strokeRect(10, 10, 580, 580);
+
+            const items = library[category];
+            const emoji = items[Math.floor(Math.random() * items.length)];
+            
+            ctx.font = "350px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(emoji, 300, 320);
+
+            return canvas.toDataURL();
+        }
+
+        // --- OYUN AKIŞI ---
+        function startGame(category) {
+            if (category === 'upload') return; 
+            currentImageSrc = generateImageFromEmoji(category);
+            setupBoard();
+            showScreen('game-screen');
+        }
+
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    currentImageSrc = event.target.result;
+                    setupBoard();
+                    showScreen('game-screen');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function setupBoard() {
+            const board = document.getElementById('game-board');
+            board.innerHTML = '';
+            board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+            board.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
+            
+            pieces = [];
+            isGameLocked = false;
+            selectedPiece = null;
+
+            for (let i = 0; i < gridSize * gridSize; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'puzzle-piece';
+                piece.dataset.idx = i;
+                piece.style.backgroundImage = `url(${currentImageSrc})`;
+                piece.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
+                
+                const row = Math.floor(i / gridSize);
+                const col = i % gridSize;
+                const bgX = (col / (gridSize - 1)) * 100;
+                const bgY = (row / (gridSize - 1)) * 100;
+                
+                piece.style.backgroundPosition = (gridSize > 1) ? `${bgX}% ${bgY}%` : 'center';
+
+                addInteractionEvents(piece);
+                pieces.push(piece);
+                board.appendChild(piece);
+            }
+
+            updatePiecesDraggable();
+
+            setTimeout(() => {
+                shufflePieces();
+            }, 500);
+        }
+
+        function updatePiecesDraggable() {
+            // Tap modunda draggable=false olmalı ki sürükleme gölgesi çıkmasın
+            pieces.forEach(p => {
+                p.draggable = (controlMode === 'drag');
+            });
+        }
+
+        function shufflePieces() {
+            for (let i = 0; i < 20; i++) {
+                const idx1 = Math.floor(Math.random() * pieces.length);
+                const idx2 = Math.floor(Math.random() * pieces.length);
+                swapPieces(pieces[idx1], pieces[idx2], false);
+            }
+        }
+
+        function swapPieces(p1, p2, animate = true) {
+            const tempBg = p1.style.backgroundPosition;
+            p1.style.backgroundPosition = p2.style.backgroundPosition;
+            p2.style.backgroundPosition = tempBg;
+
+            const tempIdx = p1.dataset.idx;
+            p1.dataset.idx = p2.dataset.idx;
+            p2.dataset.idx = tempIdx;
+        }
+
+        // --- ETKİLEŞİM YÖNETİMİ (Sürükle & Dokun) ---
+        let dragSrcEl = null;
+        let touchStartEl = null;
+
+        function addInteractionEvents(el) {
+            // Masaüstü Drag Events
+            el.addEventListener('dragstart', handleDragStart);
+            el.addEventListener('dragover', handleDragOver);
+            el.addEventListener('drop', handleDrop);
+            el.addEventListener('dragend', handleDragEnd);
+
+            // Mobil Touch Events
+            el.addEventListener('touchstart', handleTouchStart, {passive: false});
+            el.addEventListener('touchend', handleTouchEnd);
+
+            // Ortak Click/Tap (Yeni Mod İçin)
+            el.addEventListener('click', handleTapLogic);
+        }
+
+        // --- TAP (DOKUNMA) MODU MANTIĞI ---
+        function handleTapLogic(e) {
+            if (isGameLocked || controlMode !== 'tap') return;
+            
+            const clickedPiece = this;
+
+            if (!selectedPiece) {
+                // İlk seçim
+                selectedPiece = clickedPiece;
+                clickedPiece.classList.add('selected');
+                playSound('pickup');
+            } else {
+                if (selectedPiece === clickedPiece) {
+                    // Aynı parçaya tekrar dokunursa seçimi iptal et
+                    selectedPiece.classList.remove('selected');
+                    selectedPiece = null;
+                } else {
+                    // İkinci parça seçildi, yer değiştir
+                    selectedPiece.classList.remove('selected');
+                    swapPieces(selectedPiece, clickedPiece);
+                    playSound('drop');
+                    selectedPiece = null;
+                    checkWin();
+                }
+            }
+        }
+
+        // --- DRAG (SÜRÜKLEME) MODU MANTIĞI ---
+        function handleDragStart(e) {
+            if (isGameLocked || controlMode !== 'drag') {
+                e.preventDefault();
+                return;
+            }
+            dragSrcEl = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            playSound('pickup');
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) e.preventDefault();
+            return false;
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) e.stopPropagation();
+            if (controlMode === 'drag' && dragSrcEl !== this) {
+                swapPieces(dragSrcEl, this);
+                playSound('drop');
+                checkWin();
+            }
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+        }
+
+        // Mobil Dokunma (Sadece Drag Modu İçin Özelleştirilmiş)
+        function handleTouchStart(e) {
+            if (isGameLocked) return;
+
+            // Eğer TAP modundaysak, browser click eventini tetiklesin diye dokunmayalım
+            // Ama DRAG modundaysak scrollu engellememiz lazım
+            if (controlMode === 'drag') {
+                e.preventDefault(); 
+                touchStartEl = this;
+                this.classList.add('dragging');
+                playSound('pickup');
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (controlMode !== 'drag') return;
+
+            this.classList.remove('dragging');
+            const changedTouch = e.changedTouches[0];
+            const elemBelow = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
+            
+            if (elemBelow && elemBelow.classList.contains('puzzle-piece') && elemBelow !== touchStartEl) {
+                swapPieces(touchStartEl, elemBelow);
+                playSound('drop');
+                checkWin();
+            }
+        }
+
+        // --- KAZANMA KONTROLÜ ---
+        function checkWin() {
+            const allPieces = document.querySelectorAll('.puzzle-piece');
+            let isWin = true;
+            
+            allPieces.forEach((p, index) => {
+                if (parseInt(p.dataset.idx) !== index) {
+                    isWin = false;
+                }
+            });
+
+            if (isWin) {
+                isGameLocked = true;
+                playSound('win');
+                fireConfetti();
+                setTimeout(() => {
+                    document.getElementById('win-overlay').style.display = 'flex';
+                }, 500);
+            }
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function goHome() {
+            document.getElementById('win-overlay').style.display = 'none';
+            showScreen('menu-screen');
+            // Menüye dönünce olası seçimleri temizle
+            if(selectedPiece) {
+                selectedPiece.classList.remove('selected');
+                selectedPiece = null;
+            }
+        }
+
+        function nextLevel() {
+            document.getElementById('win-overlay').style.display = 'none';
+            shufflePieces();
+            isGameLocked = false;
+        }
+
+        // --- KONFETİ ---
+        function fireConfetti() {
+            for(let i=0; i<50; i++) {
+                createConfettiParticle();
+            }
+        }
+
+        function createConfettiParticle() {
+            const el = document.createElement('div');
+            el.style.position = 'fixed';
+            el.style.width = '10px';
+            el.style.height = '10px';
+            el.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.top = '-10px';
+            el.style.zIndex = '3000';
+            el.style.transition = `transform ${Math.random() * 2 + 1}s linear, top ${Math.random() * 2 + 1}s ease-in`;
+            document.body.appendChild(el);
+            setTimeout(() => {
+                el.style.top = '110vh';
+                el.style.transform = `rotate(${Math.random() * 360}deg)`;
+            }, 10);
+            setTimeout(() => el.remove(), 3000);
+        }
+
+        updateTexts();
+
+    </script>
+</body>
+</html>
